@@ -1,0 +1,329 @@
+name: CI – 自动化测试
+
+on:
+  push:
+    branches:
+      - master
+      - 'feature/**'
+      - 'copilot/**'
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  # ============================================================
+  # Job 1: 后端测试（含 Service 层、数据库冒烟测试）
+  # ============================================================
+  backend-tests:
+    name: 后端测试 (console-admin)
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: consoledb
+          MYSQL_USER: console
+          MYSQL_PASSWORD: console123
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout 代码
+        uses: actions/checkout@v4
+
+      - name: 设置 JDK 11
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: 等待 MySQL 就绪
+        run: |
+          for i in $(seq 1 30); do
+            if mysqladmin ping -h 127.0.0.1 -P 3306 -uconsole -pconsole123 --silent > /dev/null 2>&1; then
+              echo "MySQL is ready"; break
+            fi
+            echo "Waiting MySQL... ($i)"; sleep 2
+          done
+          mysql -h 127.0.0.1 -P 3306 -uconsole -pconsole123 -e "SELECT VERSION();"
+
+      - name: 编译后端并准备运行目录
+        working-directory: console-admin
+        run: mvn clean compile --no-transfer-progress
+
+      - name: 运行后端测试
+        working-directory: console-admin
+        run: mvn test -DskipTests=false --no-transfer-progress
+        # 测试内容：
+        #   - MySqlDatabaseSmokeTest: 验证 SQL 初始化脚本有效性（表/数据）
+        #   - SysUserServiceTest: 用户管理 Service 层集成测试
+        #   - SysRoleSvcTest: 角色管理 Service 层集成测试
+        #   - SysLoginServiceTest: 登录/退出 Service 层集成测试
+        #   - TenantContextTest / TenantDefaultSelectionTest: 租户上下文单元测试
+
+      - name: 上传测试报告
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-surefire-reports
+          path: console-admin/target/surefire-reports/
+
+  # ============================================================
+  # Job 2: SQL 变更冒烟测试（独立 Job，在 SQL 文件有变更时单独触发）
+  # 使用 git diff 检测 SQL 变更，无需第三方 Action
+  # ============================================================
+  sql-smoke:
+    name: SQL 冒烟测试 (sql/*.sql 变更检测)
+    runs-on: ubuntu-latest
+    # 仅在 PR 时运行此 Job（push 时由 backend-tests 覆盖）
+    if: github.event_name == 'pull_request'
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: consoledb
+          MYSQL_USER: console
+          MYSQL_PASSWORD: console123
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout 代码（含完整历史）
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 检测 SQL 文件是否有变更（基于 git diff，无第三方 Action）
+        id: sql-changed
+        run: |
+          BASE="${{ github.event.pull_request.base.sha }}"
+          HEAD="${{ github.sha }}"
+          if [ -z "$BASE" ] || [ -z "$HEAD" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "无法确定 base/head SHA，保守地触发冒烟测试"
+          else
+            echo "Comparing $BASE..$HEAD"
+            if git diff --name-only "$BASE" "$HEAD" 2>/dev/null | grep -q 'console-admin/sql/'; then
+              echo "changed=true" >> "$GITHUB_OUTPUT"
+              echo "SQL 文件有变更，将执行数据库冒烟测试"
+            else
+              echo "changed=false" >> "$GITHUB_OUTPUT"
+              echo "无 SQL 文件变更，跳过数据库冒烟测试"
+            fi
+          fi
+
+      - name: 设置 JDK 11（仅在 SQL 有变更时）
+        if: steps.sql-changed.outputs.changed == 'true'
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: 等待 MySQL 就绪
+        if: steps.sql-changed.outputs.changed == 'true'
+        run: |
+          for i in $(seq 1 30); do
+            if mysqladmin ping -h 127.0.0.1 -P 3306 -uconsole -pconsole123 --silent > /dev/null 2>&1; then
+              echo "MySQL is ready"; break
+            fi
+            echo "Waiting MySQL... ($i)"; sleep 2
+          done
+
+      - name: 运行数据库冒烟测试
+        if: steps.sql-changed.outputs.changed == 'true'
+        working-directory: console-admin
+        run: |
+          echo "检测到 SQL 变更，执行数据库初始化冒烟测试..."
+          # Step1: 编译并准备 apphome 目录
+          mvn clean compile --no-transfer-progress
+          # Step2: 运行 MySqlDatabaseSmokeTest，触发数据库初始化并验证核心表和数据
+          mvn test -DskipTests=false -Dtest=MySqlDatabaseSmokeTest --no-transfer-progress
+
+      - name: 无 SQL 变更时跳过
+        if: steps.sql-changed.outputs.changed != 'true'
+        run: echo "没有 SQL 文件变更，跳过数据库冒烟测试"
+
+  # ============================================================
+  # Job 3: 前端 API 层测试（console-ui）
+  # ============================================================
+  frontend-tests:
+    name: 前端 API 测试 (console-ui)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout 代码
+        uses: actions/checkout@v4
+
+      - name: 设置 Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: console-ui/package-lock.json
+
+      - name: 校验 Node.js 主版本（18+）
+        run: |
+          node -e "const major=parseInt(process.versions.node.split('.')[0],10); if(major<18){console.error('Node.js version must be >=18, current: '+process.versions.node); process.exit(1)}; console.log('Node.js version OK: '+process.versions.node)"
+
+      - name: 安装依赖
+        working-directory: console-ui
+        run: npm install --legacy-peer-deps
+
+      - name: 运行前端 API 测试（Vitest）
+        working-directory: console-ui
+        run: npm run test
+        # 测试覆盖：
+        #   - src/api/__tests__/login.test.js: 登录/退出/验证码 API 契约测试
+        #   - src/api/system/__tests__/user.test.js: 用户管理/个人信息 API 契约测试
+        #   - src/api/system/__tests__/role.test.js: 角色管理 API 契约测试
+
+      - name: 上传前端测试报告
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-vitest-reports
+          path: console-ui/coverage/
+
+  # ============================================================
+  # Job 4: 前端 API 集成测试（console-ui → 真实后端）
+  # ============================================================
+  frontend-integration-tests:
+    name: 前端 API 集成测试 (console-ui → 真实后端)
+    runs-on: ubuntu-latest
+    needs: backend-tests   # 复用后端已验证的编译产物与测试前置条件
+    permissions:
+      contents: read
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: consoledb
+          MYSQL_USER: console
+          MYSQL_PASSWORD: console123
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout 代码
+        uses: actions/checkout@v4
+
+      - name: 设置 JDK 11
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: 设置 Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: console-ui/package-lock.json
+
+      - name: 等待 MySQL 就绪
+        run: |
+          for i in $(seq 1 30); do
+            if mysqladmin ping -h 127.0.0.1 -P 3306 -uconsole -pconsole123 --silent > /dev/null 2>&1; then
+              echo "MySQL is ready"; break
+            fi
+            echo "Waiting MySQL... ($i)"; sleep 2
+          done
+
+      - name: 后端编译打包（-Ptest：开启 interLogin + 将 adminPasswordExpireDays 过滤为 30）
+        working-directory: console-admin
+        run: mvn clean package -DskipTests=true -Ptest --no-transfer-progress
+
+      - name: 启动后端服务（后台运行）
+        working-directory: console-admin/apphome/bin
+        run: |
+          bash ./console.sh start
+          bash ./console.sh status
+
+      - name: 等待后端就绪（最多 60 秒）
+        run: |
+          echo "等待后端服务启动..."
+          for i in $(seq 1 20); do
+            if curl -sf http://localhost:8083/web-api/captchaImage > /dev/null 2>&1; then
+              echo "后端服务已就绪（第 ${i} 次检查）"
+              exit 0
+            fi
+            echo "第 ${i} 次检查：服务尚未就绪，等待 3 秒..."
+            if bash console-admin/apphome/bin/console.sh status | grep -q 'not running'; then
+              echo "后端进程已退出，输出 apphome/logs 下可用日志："
+              ls -al console-admin/apphome/logs || true
+              for file in console-admin/apphome/logs/*.log; do
+                [ -f "$file" ] || continue
+                echo "--- $file ---"
+                tail -n 200 "$file" || true
+              done
+              exit 1
+            fi
+            sleep 3
+          done
+          echo "后端服务启动超时，查看日志："
+          ls -al console-admin/apphome/logs || true
+          for file in console-admin/apphome/logs/*.log; do
+            [ -f "$file" ] || continue
+            echo "--- $file ---"
+            tail -n 200 "$file" || true
+          done
+          exit 1
+
+      - name: 安装前端依赖
+        working-directory: console-ui
+        run: npm install --legacy-peer-deps
+
+      - name: 运行前端 API 集成测试（Vitest）
+        working-directory: console-ui
+        run: npm run test:integration
+        # 测试覆盖：
+        #   - src/api/__integration_tests__/login.integration.test.js: 登录/退出/用户信息真实接口测试
+        #   - src/api/__integration_tests__/user.integration.test.js: 用户管理真实接口测试
+        #   - src/api/__integration_tests__/role.integration.test.js: 角色管理真实接口测试
+
+      - name: 停止后端服务
+        if: always()
+        working-directory: console-admin/apphome/bin
+        run: bash ./console.sh stop || true
+
+      - name: 输出后端日志（仅在失败时）
+        if: failure()
+        run: |
+          ls -al console-admin/apphome/logs || true
+          for file in console-admin/apphome/logs/*.log; do
+            [ -f "$file" ] || continue
+            echo "--- $file ---"
+            tail -n 200 "$file" || true
+          done
+
+      - name: 上传集成测试报告
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-integration-test-reports
+          path: console-admin/apphome/logs/
+

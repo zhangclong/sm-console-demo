@@ -1,0 +1,60 @@
+# Compiled class file
+*.class
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# Intellij
+*.ipr
+*.iml
+*.iws
+.idea
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+
+
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# Log file
+*.log
+log/
+
+# out
+**/out/
+
+# Mac
+.DS_Store
+
+# others
+*.war
+*.zip
+*.pid
+*.orig
+*.tar.gz
+temp/
+dependency-reduced-pom.xml
+
+!*/build/*.java
+!*/build/*.html
+!*/build/*.xml
+
+*.xml.versionsBackup
+*.swp
+
+#H2数据库跟踪文件#
+consoledb.trace.db
+
+/console-admin/src/main/resources/public/
+/console-admin/lib/*.jar
+/console-admin/apphome/
+/console-admin/dependency-reduced-pom.xml

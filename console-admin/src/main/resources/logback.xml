@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- 日志存放路1 -->
+	<property name="log.path" value="./logs" />
+
+    <!-- 日志输出格式 -->
+	<property name="log.pattern" value="%d{HH:mm:ss.SSS} [%thread] %-5level %logger{20} - [%method,%line] - %msg%n" />
+
+    <property name="log.pattern-simple" value="%d{HH:mm:ss.SSS} [%thread] %-5level %logger{20} - %msg%n" />
+
+	<!-- 控制台输出 -->
+	<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>${log.pattern}</pattern>
+		</encoder>
+	</appender>
+
+	<!-- 系统日志输出 -->
+	<appender name="file_info" class="ch.qos.logback.core.rolling.RollingFileAppender">
+	    <file>${log.path}/system.log</file>
+        <!-- 循环政策：基于时间创建日志文件 -->
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 日志文件名格式 -->
+			<fileNamePattern>${log.path}/system.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<!-- 日志最大的历史 60天 -->
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${log.pattern}</pattern>
+		</encoder>
+	</appender>
+
+    <!-- probe日志输出 -->
+    <appender name="probe_log_file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/probe.log</file>
+        <!-- 循环政策：基于时间创建日志文件 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 日志文件名格式 -->
+            <fileNamePattern>${log.path}/probe.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- 保留日志历史的天数： 30天 -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+    </appender>
+
+	<!-- 用户访问日志输出  -->
+    <appender name="sys-user" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${log.path}/user-access.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 按天回滚 daily -->
+            <fileNamePattern>${log.path}/user-access.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- 日志最大的历史 30天 -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${log.pattern-simple}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 计划任务日志 -->
+    <appender name="schedule-task" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/schedule-task.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 按天回滚 daily -->
+            <fileNamePattern>${log.path}/schedule-task.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- 日志最大的历史 30天 -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${log.pattern-simple}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 计划任务日志 -->
+    <appender name="replicator-audit" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/replicator-audit.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 按天回滚 daily -->
+            <fileNamePattern>${log.path}/replicator-audit.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- 日志最大的历史 30天 -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${log.pattern-simple}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 数据库代理, 临时使用，用于跟踪是否正确拦截了写入的SQL -->
+    <appender name="db-proxy" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/db-proxy.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 按天回滚 daily -->
+            <fileNamePattern>${log.path}/db-proxy.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- 日志最大的历史 30天 -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${log.pattern-simple}</pattern>
+        </encoder>
+    </appender>
+
+
+    <!-- 系统模块日志级别控制  -->
+    <logger name="com.uh" level="info" />
+    <logger name="org.hibernate.validator.internal.util.Version" level="error" />
+
+	<!-- Spring日志级别控制  -->
+	<logger name="org.springframework" level="warn" />
+
+
+	<!--系统操作日志-->
+    <root level="info">
+        <appender-ref ref="console" />
+        <appender-ref ref="file_info" />
+    </root>
+
+    <logger name="com.uh.probe" level="info" additivity="false">
+        <appender-ref ref="probe_log_file"/>
+    </logger>
+
+	<!--用户访问日志-->
+    <logger name="sys-user" level="info" additivity="false">
+        <appender-ref ref="sys-user"/>
+    </logger>
+
+    <!-- 计划任务日志 -->
+    <logger name="schedule-task" level="info" additivity="false">
+        <appender-ref ref="schedule-task"/>
+    </logger>
+
+    <!-- 计划任务日志 -->
+    <logger name="DataExchanger" level="info" additivity="false">
+        <appender-ref ref="replicator-audit"/>
+    </logger>
+
+    <!--用户访问日志-->
+    <logger name="db-proxy" level="info" additivity="false">
+        <appender-ref ref="db-proxy"/>
+    </logger>
+
+</configuration>

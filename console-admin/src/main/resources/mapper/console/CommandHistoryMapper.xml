@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.uh.console.mapper.CommandHistoryMapper">
+
+    <resultMap type="CommandHistory" id="CommandHistoryResult">
+        <result property="historyId"    column="history_id"    />
+        <result property="commandType"    column="command_type"    />
+        <result property="nodeId"    column="node_id"    />
+        <result property="nodeName"    column="node_name"    />
+        <result property="managerId"    column="manager_id"    />
+        <result property="managerName"    column="manager_name"    />
+        <result property="cmd"    column="cmd"    />
+        <result property="cmdMsg"    column="cmd_msg"    />
+        <result property="cmdFile"    column="cmd_file"    />
+        <result property="resStatus"    column="res_status"    />
+        <result property="resMsg"    column="res_msg"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="duration"    column="duration"    />
+        <result property="delFlag"            column="del_flag"              />
+    </resultMap>
+
+    <sql id="selectCommandHistoryVo">
+        select h.history_id, h.command_type, h.manager_id,
+        h.cmd, h.cmd_msg, h.cmd_file, h.res_status, h.res_msg, h.create_time, h.duration, h.del_flag
+        from cnsl_command_history h
+    </sql>
+
+    <select id="selectCommandHistoryList" parameterType="CommandHistory" resultMap="CommandHistoryResult">
+        <include refid="selectCommandHistoryVo"/>
+        <where>
+            h.del_flag = '0'
+            <if test="commandType != null  and commandType != ''"> and h.command_type = #{commandType}</if>
+            <if test="cmd != null  and cmd != ''"> and h.cmd = #{cmd}</if>
+            <if test="resStatus != null  and resStatus != ''"> and h.res_status = #{resStatus}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != ''"><!-- 开始时间检索 -->
+                AND h.create_time &gt;= '${params.beginCreateTime} 00:00:00'
+            </if>
+            <if test="params.endCreateTime != null and params.endCreateTime != ''"><!-- 结束时间检索 -->
+                AND h.create_time &lt;= '${params.endCreateTime} 23:59:59'
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="selectLastCommandHistory" parameterType="CommandHistory" resultMap="CommandHistoryResult">
+        select h.history_id, h.command_type, h.node_id, h.manager_id, h.cmd, h.res_status, h.create_time, h.duration, h.del_flag
+        from cnsl_command_history h
+        <where>
+            h.del_flag = '0'
+            <if test="commandType != null  and commandType != ''"> and h.command_type = #{commandType}</if>
+            <if test="nodeId != null "> and h.node_id = #{nodeId}</if>
+            <if test="managerId != null "> and h.manager_id = #{managerId}</if>
+            <if test="cmd != null  and cmd != ''"> and h.cmd = #{cmd}</if>
+        </where>
+        order by h.create_time desc LIMIT 1
+    </select>
+
+    <select id="selectCommandHistoryByHistoryId" parameterType="Long" resultMap="CommandHistoryResult">
+        <include refid="selectCommandHistoryVo"/>
+        where history_id = #{historyId}
+    </select>
+
+    <insert id="insertCommandHistory" parameterType="CommandHistory" useGeneratedKeys="true" keyProperty="historyId">
+        insert into cnsl_command_history
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="commandType != null and commandType != ''">command_type,</if>
+            <if test="nodeId != null">node_id,</if>
+            <if test="managerId != null">manager_id,</if>
+            <if test="cmd != null and cmd != ''">cmd,</if>
+            <if test="cmdMsg != null">cmd_msg,</if>
+            <if test="cmdFile != null">cmd_file,</if>
+            <if test="resStatus != null and resStatus != ''">res_status,</if>
+            <if test="resMsg != null">res_msg,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="duration != null">duration,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="commandType != null and commandType != ''">#{commandType},</if>
+            <if test="nodeId != null">#{nodeId},</if>
+            <if test="managerId != null">#{managerId},</if>
+            <if test="cmd != null and cmd != ''">#{cmd},</if>
+            <if test="cmdMsg != null">#{cmdMsg},</if>
+            <if test="cmdFile != null">#{cmdFile},</if>
+            <if test="resStatus != null and resStatus != ''">#{resStatus},</if>
+            <if test="resMsg != null">#{resMsg},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="duration != null">#{duration},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCommandHistory" parameterType="CommandHistory">
+        update cnsl_command_history
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="commandType != null and commandType != ''">command_type = #{commandType},</if>
+            <if test="nodeId != null">node_id = #{nodeId},</if>
+            <if test="managerId != null">manager_id = #{managerId},</if>
+            <if test="cmd != null and cmd != ''">cmd = #{cmd},</if>
+            <if test="cmdMsg != null">cmd_msg = #{cmdMsg},</if>
+            <if test="cmdFile != null">cmd_file = #{cmdFile},</if>
+            <if test="resStatus != null and resStatus != ''">res_status = #{resStatus},</if>
+            <if test="resMsg != null">res_msg = #{resMsg},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="duration != null">duration = #{duration},</if>
+        </trim>
+        where history_id = #{historyId}
+    </update>
+
+    <update id="deleteCommandHistoryByHistoryIds" parameterType="String">
+        update cnsl_command_history set del_flag = '2' where history_id in
+        <foreach item="historyId" collection="array" open="(" separator="," close=")">
+            #{historyId}
+        </foreach>
+    </update>
+
+    <delete id="deleteByCreateTime" parameterType="Date">
+        delete from cnsl_command_history where create_time &lt;= #{createTime}
+    </delete>
+
+    <delete id="deleteCommandHistoryByNodeId" parameterType="Long">
+        delete from cnsl_command_history where node_id = #{nodeId}
+    </delete>
+
+</mapper>

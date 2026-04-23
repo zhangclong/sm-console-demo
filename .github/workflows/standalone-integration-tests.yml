@@ -1,0 +1,105 @@
+name: Console Client Integration Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_scope:
+        description: 'Test scope to run'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - writeOps
+          - readOps
+
+jobs:
+  console-client-integration-tests:
+    name: Console Client Integration Tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build console-admin with test profile
+        working-directory: console-admin
+        run: mvn clean package -DskipTests=true -Ptest --no-transfer-progress
+
+      - name: Start backend service
+        working-directory: console-admin/apphome/bin
+        run: |
+          bash ./console.sh start
+          bash ./console.sh status
+
+      - name: Wait for backend to be ready
+        run: |
+          echo "Waiting for backend (max 120s)..."
+          for i in $(seq 1 24); do
+            if curl -sf http://localhost:8083/web-api/captchaImage > /dev/null 2>&1; then
+              echo "Backend is ready"
+              exit 0
+            fi
+            if bash console-admin/apphome/bin/console.sh status | grep -q 'not running'; then
+              echo "Backend process exited unexpectedly"
+              ls -al console-admin/apphome/logs || true
+              for file in console-admin/apphome/logs/*.log; do
+                [ -f "$file" ] || continue
+                echo "--- $file ---"
+                tail -n 200 "$file" || true
+              done
+              exit 1
+            fi
+            echo "Attempt ${i}/24: backend not ready yet"
+            sleep 5
+          done
+          echo "Backend did not become ready in time"
+          ls -al console-admin/apphome/logs || true
+          for file in console-admin/apphome/logs/*.log; do
+            [ -f "$file" ] || continue
+            echo "--- $file ---"
+            tail -n 200 "$file" || true
+          done
+          exit 1
+
+      - name: Run console-client integration tests
+        working-directory: console-client
+        run: |
+          if [ "${{ github.event.inputs.test_scope }}" = "writeOps" ]; then
+            mvn test -DskipTests=false -Dgroups=writeOps --no-transfer-progress
+          elif [ "${{ github.event.inputs.test_scope }}" = "readOps" ]; then
+            mvn test -DskipTests=false -Dgroups=readOps --no-transfer-progress
+          else
+            mvn test -DskipTests=false --no-transfer-progress
+          fi
+
+      - name: Stop backend service
+        if: always()
+        working-directory: console-admin/apphome/bin
+        run: |
+          bash ./console.sh stop || true
+
+      - name: Upload backend logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-logs
+          path: console-admin/apphome/logs/
+          retention-days: 5
+
+      - name: Upload test reports on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: console-client-test-reports
+          path: console-client/target/surefire-reports/
+          retention-days: 5
+

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.uh.console.mapper.TemplateMapper">
+
+    <resultMap type="Template" id="TemplateResult">
+        <result property="templateId"    column="template_id"    />
+        <result property="groupId"    column="group_id"    />
+        <result property="tempName"    column="temp_name"    />
+        <result property="tempContent"    column="temp_content"    />
+        <result property="tempType"    column="temp_type"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectTemplateVo">
+        select template_id, group_id, temp_name, temp_content, temp_type, create_by, create_time, update_by, update_time, remark from cnsl_template
+    </sql>
+
+    <!-- 列表查询时不返回大文本字段 temp_content  -->
+    <select id="selectTemplateList" parameterType="Template" resultMap="TemplateResult">
+        select template_id, group_id, temp_name, temp_type, create_by, create_time, update_by, update_time, remark from cnsl_template
+        <where>
+            <if test="groupId != null "> and group_id = #{groupId}</if>
+            <if test="tempName != null  and tempName != ''"> and temp_name like concat('%', #{tempName}, '%')</if>
+            <if test="tempContent != null  and tempContent != ''"> and temp_content = #{tempContent}</if>
+            <if test="tempType != null  and tempType != ''"> and temp_type = #{tempType}</if>
+        </where>
+    </select>
+
+    <!-- 列表查询时不返回大文本字段 temp_content  -->
+    <select id="selectTemplateListWithContent" parameterType="Template" resultMap="TemplateResult">
+        <include refid="selectTemplateVo"/>
+        <where>
+            <if test="groupId != null "> and group_id = #{groupId}</if>
+            <if test="tempName != null  and tempName != ''"> and temp_name like concat('%', #{tempName}, '%')</if>
+            <if test="tempContent != null  and tempContent != ''"> and temp_content = #{tempContent}</if>
+            <if test="tempType != null  and tempType != ''"> and temp_type = #{tempType}</if>
+        </where>
+    </select>
+
+    <select id="selectTemplateByTemplateId" parameterType="Long" resultMap="TemplateResult">
+        <include refid="selectTemplateVo"/>
+        where template_id = #{templateId}
+    </select>
+
+    <select id="selectTemplateByGroupType" parameterType="Template" resultMap="TemplateResult">
+        <include refid="selectTemplateVo"/>
+        where group_id = #{groupId} and temp_type = #{tempType}
+    </select>
+
+
+
+    <insert id="insertTemplate" parameterType="Template" useGeneratedKeys="true" keyProperty="templateId">
+        insert into cnsl_template
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="groupId != null">group_id,</if>
+            <if test="tempName != null">temp_name,</if>
+            <if test="tempContent != null">temp_content,</if>
+            <if test="tempType != null">temp_type,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="groupId != null">#{groupId},</if>
+            <if test="tempName != null">#{tempName},</if>
+            <if test="tempContent != null">#{tempContent},</if>
+            <if test="tempType != null">#{tempType},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTemplate" parameterType="Template">
+        update cnsl_template
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="groupId != null">group_id = #{groupId},</if>
+            <if test="tempName != null">temp_name = #{tempName},</if>
+            <if test="tempContent != null">temp_content = #{tempContent},</if>
+            <if test="tempType != null">temp_type = #{tempType},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where template_id = #{templateId}
+    </update>
+
+    <delete id="deleteTemplateByTemplateId" parameterType="Long">
+        delete from cnsl_template where template_id = #{templateId}
+    </delete>
+
+    <delete id="deleteTemplateByGroupId" parameterType="Long">
+        delete from cnsl_template where group_id = #{groupId}
+    </delete>
+
+    <delete id="deleteTemplateByTemplateIds" parameterType="String">
+        delete from cnsl_template where template_id in
+        <foreach item="templateId" collection="array" open="(" separator="," close=")">
+            #{templateId}
+        </foreach>
+    </delete>
+</mapper>

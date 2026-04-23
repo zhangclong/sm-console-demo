@@ -1,0 +1,58 @@
+# 项目相关配置
+console:
+  # 验证码类型 math 数组计算 char 字符验证 easy-char 简单字符验证
+  captchaType: "easy-char"
+  # 国际化语言配置，可选值有：zh-CN 中文简体，en 英文， zh-TW 繁体中文
+  locale: "${RDS_CONSOLE_LANG:zh-CN}"
+# 开发环境配置
+server:
+  # 国密SSL相关配置
+  # 必要配置：enable-gmssl: true,key-store: /home/server.pfx,key-store-password: 12345678,enabled: false。其他无特殊需求可不配置。
+  ssl:
+    # 使用SSL配置为true
+    enabled: false
+    # 证书文件路径
+    key-store:
+    # 证书别名，一般不用修改。若证书别名非默认请修改。
+    key-alias: 'SIG,ENC'
+    # 证书类型，支持PKCS12和JKS格式
+    key-store-type: PKCS12
+    # 证书密码必须和证书pfx文件密码一致
+    key-store-password:
+  # 服务器的HTTP端口，默认为8083
+  port: 8083
+  # 应用的访问路径
+  context-path: "/"
+  # 跨源资源共享(CORS)的配置
+  cors:
+    # 是否开启跨源资源共享, 默认不开启
+    enabled: false
+    # 建议生产中把"*"改为具体的地址，如：http://192.168.0.90:8083
+    allowedOrigin: "*"
+  # 设置IP白名单，多个IP用|分隔可以使用通配符，如 "192.168.3.*|192.168.1.100|192.168.1.101"
+  # whiteList: "127.0.0.1|192.168.3.*"
+user:
+  #登录最多重试次数
+  loginMaxRetries: 6
+  #密码过期时长(天)
+  passwordExpireDays: 30
+  #用户管理-账号初始密码
+  initPassword: 12345678
+  #admin的初始化密码
+  initAdminPassword: admin123
+  # 登录后记录用户登录状态和信息的token配置
+  token:
+    # 令牌密钥
+    secret: abcdefghijklmnopqrstuvwxyz
+    # 令牌有效期（默认30分钟）
+    expireTime: 30
+    # 是否允许账户多终端同时登录（true允许 false不允许）
+    multiLogin: false
+interface:
+  # 是否开启接口（此值由 Maven Ant 过滤替换：默认 false，使用 -Ptest profile 时为 true）
+  enable: @INTERFACE_ENABLE@
+  # 接口允许使用的访问用户列表
+  usernames: ["admin", "test"]
+  # 接口允许访问的IP地址
+  allowedIps: ["127.0.0.1", "192.168.0.*", "192.168.3.*"]
+

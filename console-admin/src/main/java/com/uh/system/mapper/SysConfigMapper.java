@@ -1,0 +1,89 @@
+package com.uh.system.mapper;
+
+import java.util.List;
+import com.uh.system.domain.SysConfig;
+
+/**
+ * 参数配置 数据层
+ *
+ * @author XiaoZhangTongZhi
+ */
+public interface SysConfigMapper
+{
+    /**
+     * 查询参数配置信息
+     *
+     * @param config 参数配置信息
+     * @return 参数配置信息
+     */
+    public SysConfig selectConfig(SysConfig config);
+
+    /**
+     * 查询参数配置列表
+     *
+     * @param config 参数配置信息
+     * @return 参数配置集合
+     */
+    public List<SysConfig> selectConfigList(SysConfig config);
+
+    /**
+     * 根据键名查询参数配置信息
+     *
+     * @param configKey 参数键名
+     * @return 参数配置信息
+     */
+    public SysConfig checkConfigKeyUnique(String configKey);
+
+    /**
+     * 新增参数配置
+     *
+     * @param config 参数配置信息
+     * @return 结果
+     */
+    public int insertConfig(SysConfig config);
+
+    /**
+     *
+     * @param config
+     * @return
+     */
+    public int insertUpdateConfig(SysConfig config);
+
+    /**
+     * 修改参数配置
+     *
+     * @param config 参数配置信息
+     * @return 结果
+     */
+    public int updateConfig(SysConfig config);
+
+    /**
+     * 通过 configKey 作为条件，进行更新操作
+     * @param config
+     * @return
+     */
+    public int updateConfigByKey(SysConfig config);
+
+    /**
+     * 删除参数配置
+     *
+     * @param configId 参数ID
+     * @return 结果
+     */
+    public int deleteConfigById(Long configId);
+
+    /**
+     * 通过key值删除对应的config项
+     * @param key
+     * @return
+     */
+    public int deleteConfigByKey(String key);
+
+    /**
+     * 批量删除参数信息
+     *
+     * @param configIds 需要删除的参数ID
+     * @return 结果
+     */
+    public int deleteConfigByIds(Long[] configIds);
+}

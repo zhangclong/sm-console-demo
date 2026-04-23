@@ -1,0 +1,28 @@
+# 数据源配置（MySQL 8.4）
+# 说明：
+#   - 本文件位于 src/main/resources，打包后不可直接修改，存放相对稳定的默认值。
+#   - 运行时可在 run-resources/config/application.yml 中覆盖所需修改项。
+datasource:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    # 连接URL，部署时按实际环境修改
+    url: "jdbc:mysql://127.0.0.1:3306/consoledb?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&rewriteBatchedStatements=true"
+    # 连接数据库的用户名，部署时按实际环境修改
+    username: "console"
+    # 连接数据库的密码，部署时按实际环境修改
+    password: "console123"
+    # 初始化缓存池大小
+    initialPoolSize: 10
+    # 最小缓存池大小
+    minPoolSize: 10
+    # 最大缓存池大小
+    maxPoolSize: 50
+    # 申请连接扩容的步长(每次增加多少个连接)
+    acquireIncrement: 3
+    # 申请连接重试的次数
+    acquireRetryAttempts: 3
+    # 连接空闲时间(秒)，达到此时间后连接被丢弃。0表示不丢弃。
+    maxIdleTime: 300
+    # 单连接最大缓存 PreparedStatement 数量
+    maxStatements: 50
+    # 测试是否可用的间隔时间(秒)，配合 preferredTestQuery=SELECT 1 做 MySQL 长连接存活检测
+    idleConnectionTestPeriod: 60

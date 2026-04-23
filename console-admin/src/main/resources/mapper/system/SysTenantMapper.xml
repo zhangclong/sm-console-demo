@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.uh.system.mapper.SysTenantMapper">
+
+    <resultMap type="SysTenant" id="SysTenantResult">
+        <id     property="tenantId"   column="tenant_id"   />
+        <result property="tenantName" column="tenant_name" />
+        <result property="status"     column="status"      />
+        <result property="createBy"   column="create_by"   />
+        <result property="createTime" column="create_time" />
+        <result property="updateBy"   column="update_by"   />
+        <result property="updateTime" column="update_time" />
+        <result property="remark"     column="remark"      />
+    </resultMap>
+
+    <select id="selectTenantList" resultMap="SysTenantResult">
+        SELECT tenant_id, tenant_name, status, create_by, create_time, update_by, update_time, remark
+        FROM sys_tenant
+        WHERE status = '0'
+        ORDER BY tenant_id
+    </select>
+
+    <select id="selectTenantById" resultMap="SysTenantResult">
+        SELECT tenant_id, tenant_name, status, create_by, create_time, update_by, update_time, remark
+        FROM sys_tenant
+        WHERE tenant_id = #{tenantId}
+    </select>
+
+    <!--
+        查询用户可访问的租户ID列表。
+        平台管理员判定：用户角色的 role_key 包含 'admin' 字符串。
+        注意：使用 LIKE '%admin%' 是产品设计要求——"后端平台管理员由角色包含 'admin' 字符串决定"，
+              请确保角色 role_key 的命名受到管控，避免意外匹配。
+        平台管理员可访问所有启用的租户；普通用户只能访问在 sys_user_tenant 中关联的启用租户。
+    -->
+    <select id="selectTenantIdsByUserId" resultType="java.lang.Long">
+        SELECT t.tenant_id
+        FROM sys_tenant t
+        WHERE t.status = '0'
+          AND (
+              EXISTS (
+                  SELECT 1 FROM sys_user_role ur
+                  JOIN sys_role r ON r.role_id = ur.role_id
+                  WHERE ur.user_id = #{userId}
+                    AND r.role_key LIKE '%admin%'
+              )
+              OR
+              EXISTS (
+                  SELECT 1 FROM sys_user_tenant ut
+                  WHERE ut.user_id = #{userId} AND ut.tenant_id = t.tenant_id
+              )
+          )
+        ORDER BY t.tenant_id
+    </select>
+
+    <select id="selectTenantsByUserId" resultMap="SysTenantResult">
+        SELECT t.tenant_id, t.tenant_name, t.status, t.create_by, t.create_time,
+               t.update_by, t.update_time, t.remark
+        FROM sys_tenant t
+        WHERE t.status = '0'
+          AND (
+              EXISTS (
+                  SELECT 1 FROM sys_user_role ur
+                  JOIN sys_role r ON r.role_id = ur.role_id
+                  WHERE ur.user_id = #{userId}
+                    AND r.role_key LIKE '%admin%'
+              )
+              OR
+              EXISTS (
+                  SELECT 1 FROM sys_user_tenant ut
+                  WHERE ut.user_id = #{userId} AND ut.tenant_id = t.tenant_id
+              )
+          )
+        ORDER BY t.tenant_id
+    </select>
+
+    <!--
+        验证租户ID是否属于用户（或用户是平台管理员）。
+        返回值大于0表示有权访问该租户。
+        注意：平台管理员判定规则同 selectTenantIdsByUserId，使用 LIKE '%admin%' 匹配角色 role_key。
+    -->
+    <select id="countUserTenant" resultType="int">
+        SELECT COUNT(1)
+        FROM sys_tenant t
+        WHERE t.tenant_id = #{tenantId}
+          AND t.status = '0'
+          AND (
+              EXISTS (
+                  SELECT 1 FROM sys_user_role ur
+                  JOIN sys_role r ON r.role_id = ur.role_id
+                  WHERE ur.user_id = #{userId}
+                    AND r.role_key LIKE '%admin%'
+              )
+              OR
+              EXISTS (
+                  SELECT 1 FROM sys_user_tenant ut
+                  WHERE ut.user_id = #{userId} AND ut.tenant_id = t.tenant_id
+              )
+          )
+    </select>
+
+</mapper>

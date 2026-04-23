@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.uh.console.mapper.TemplateGroupVersionMapper">
+
+    <resultMap type="TemplateGroupVersion" id="TemplateGroupVersionResult">
+        <result property="groupId"    column="group_id"    />
+        <result property="versionId"    column="version_id"    />
+    </resultMap>
+
+    <sql id="selectTemplateGroupVersionVo">
+        select group_id, version_id from cnsl_template_group_version
+    </sql>
+
+    <select id="selectList" parameterType="TemplateGroupVersion" resultMap="TemplateGroupVersionResult">
+        <include refid="selectTemplateGroupVersionVo"/>
+        <where>  
+            <if test="versionId != null "> and version_id = #{versionId}</if>
+            <if test="groupId != null "> and group_id = #{groupId}</if>
+        </where>
+    </select>
+    
+    <select id="selectByGroupId" parameterType="Long" resultMap="TemplateGroupVersionResult">
+        <include refid="selectTemplateGroupVersionVo"/>
+        where group_id = #{groupId}
+    </select>
+        
+    <insert id="insertGroupVersion" parameterType="TemplateGroupVersion">
+        insert into cnsl_template_group_version
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="groupId != null">group_id,</if>
+            <if test="versionId != null">version_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="groupId != null">#{groupId},</if>
+            <if test="versionId != null">#{versionId},</if>
+         </trim>
+    </insert>
+
+    <delete id="deleteByGroupId" parameterType="Long">
+        delete from cnsl_template_group_version where group_id = #{groupId}
+    </delete>
+
+
+    <delete id="deleteByVersionId" parameterType="Long">
+        delete from cnsl_template_group_version where version_id = #{versionId}
+    </delete>
+
+</mapper>

@@ -1,0 +1,23 @@
+# 项目相关配置
+console:
+  # 名称
+  name: '${config.productName}管理控制台'
+  # 版本
+  version: '${config.version}'
+  #构建时间
+  buildTime: '${build.timestamp}'
+  # 版权年份
+  copyrightYear: 2026
+  # 获取ip地址开关
+  addressEnabled: false
+  # 管理员密码过期天数，0 表示不过期；值由 Maven 资源过滤替换，用于首次初始化数据库时设置 admin 账户
+  adminPasswordExpireDays: ${ADMIN_PASSWORD_EXPIRE_DAYS}
+# 开发环境配置
+server:
+  starter: 'TomcatServerStarter'
+# 日志配置
+logging:
+  levels:
+    root: info
+    com.uh: info
+    org.springframework: info

@@ -1,0 +1,35 @@
+schedule:
+    # 线程池维护线程的最少数量
+    initPoolSize: 10
+    # 最大连接池数量
+    maxPoolSize: 300
+    # 线程池维护线程所允许的空闲时间(秒)
+    keepAlive: 60
+
+    # 任务列表
+    tasks:
+        - name: "DatabaseBackup"
+
+          unit: "HOURS" # 任务执行周期单位，支持SECONDS,MINUTES,HOURS
+          period: 24
+          # 任务开始时间，
+          #    格式为HH:mm:ss 表示是离现在最近的 HH:mm:ss 时间执行，基准时间是天；
+          #    格式为mm:ss 表示是离现在最近的 mm:ss 时间执行，基准时间是小时；
+          #    格式为为ss 表示是离现在最近 ss 时间执行，基准时间是分钟；
+          beginTime: "01:30:00"
+          beanName: "databaseBackupTask"
+          method: "process(7)"
+          enable: true
+          audit: true  # 是否记录审计日志到表 sys_task_log , 此属性默认是true
+          remark: "数据库备份任务，每日1点30分备份数据库数据到 data/dbbak的文件, 同时会清理该目录下过期的备份文件. 参数为过期清理备份的时间（单位天），默认清理7天前的备份文件."
+
+        - name: "cleanLogs"
+          unit: "MINUTES"
+          period: 60
+          beginTime: "00:00"
+          beanName: "dataCleanupTask"
+          method: "cleanLogs(240)" # 删除240小时前的备份文件
+          enable: true
+          remark: "清理日志数据，参数是指定被清理数据的过期时间(单位小时，默认值240)"
+
+
