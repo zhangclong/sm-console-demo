@@ -70,7 +70,7 @@ public class SysTenantController extends BaseController
      * @param tenantId 要切换到的租户ID
      * @return 操作结果
      */
-    @Log(title = "租户切换", businessType = BusinessTypeConstants.UPDATE)
+    @Log(title = "system", businessType = BusinessTypeConstants.UPDATE)
     @PostMapping("/select/{tenantId}")
     public AjaxResult selectTenant(@PathVariable Long tenantId)
     {

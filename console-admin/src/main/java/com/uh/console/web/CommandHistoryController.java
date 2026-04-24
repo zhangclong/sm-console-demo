@@ -50,7 +50,7 @@ public class CommandHistoryController extends BaseController
      * 导出执行命令历史列表
      */
     @PrePermission("console:commandhistory:export")
-    @Log(title = "ExecuteCommandHistory", businessType = BusinessTypeConstants.EXPORT)
+    @Log(title = "console:commandhistory", businessType = BusinessTypeConstants.EXPORT)
     @PostMapping("/export")
     public void export(HttpServletResponse response, CommandHistory commandHistory)
     {
@@ -73,7 +73,7 @@ public class CommandHistoryController extends BaseController
      * 删除执行命令历史
      */
     @PrePermission("console:commandhistory:remove")
-    @Log(title = "ExecuteCommandHistory", businessType = BusinessTypeConstants.DELETE)
+    @Log(title = "console:commandhistory", businessType = BusinessTypeConstants.DELETE)
 	@GetMapping("/delete/{historyIds}")
     public AjaxResult remove(@PathVariable("historyIds") Long[] historyIds)
     {

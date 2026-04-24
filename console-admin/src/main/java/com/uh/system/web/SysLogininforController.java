@@ -41,7 +41,7 @@ public class SysLogininforController extends BaseController
         return getDataTable(list);
     }
 
-    @Log(title = "LoginLog", businessType = BusinessTypeConstants.EXPORT)
+    @Log(title = "monitor:logininfor", businessType = BusinessTypeConstants.EXPORT)
     @PrePermission("monitor:logininfor:export")
     @PostMapping("/export")
     public void export(HttpServletResponse response, SysLogininfor logininfor)
@@ -52,7 +52,7 @@ public class SysLogininforController extends BaseController
     }
 
     @PrePermission("monitor:logininfor:remove")
-    @Log(title = "LoginLog", businessType = BusinessTypeConstants.DELETE)
+    @Log(title = "monitor:logininfor", businessType = BusinessTypeConstants.DELETE)
     @GetMapping("/delete/{infoIds}")
     public AjaxResult remove(@PathVariable("infoIds") Long[] infoIds)
     {
@@ -60,7 +60,7 @@ public class SysLogininforController extends BaseController
     }
 
     @PrePermission("monitor:logininfor:remove")
-    @Log(title = "LoginLog", businessType = BusinessTypeConstants.CLEAN)
+    @Log(title = "monitor:logininfor", businessType = BusinessTypeConstants.CLEAN)
     @GetMapping("/clean")
     public AjaxResult clean()
     {

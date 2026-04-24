@@ -65,7 +65,7 @@ public class SysConfigController extends BaseController {
         return getDataTable(list);
     }
 
-    @Log(title = "ParameterManagement", businessType = BusinessTypeConstants.EXPORT)
+    @Log(title = "system:config", businessType = BusinessTypeConstants.EXPORT)
     @PrePermission("system:config:export")
     @PostMapping("/export")
     public void export(HttpServletResponse response, SysConfig config) {
@@ -138,7 +138,7 @@ public class SysConfigController extends BaseController {
      * 新增参数配置
      */
     @PrePermission("system:config:add")
-    @Log(title = "ParameterManagement", businessType = BusinessTypeConstants.INSERT)
+    @Log(title = "system:config", businessType = BusinessTypeConstants.INSERT)
     @PostMapping
     public AjaxResult add(@Validated @RequestBody SysConfig config) {
         config.setCreateBy(getUsername());
@@ -149,7 +149,7 @@ public class SysConfigController extends BaseController {
      * 修改参数配置
      */
     @PrePermission("system:config:edit")
-    @Log(title = "ParameterManagement", businessType = BusinessTypeConstants.UPDATE)
+    @Log(title = "system:config", businessType = BusinessTypeConstants.UPDATE)
     @PostMapping("/edit")
     public AjaxResult edit(@Validated @RequestBody SysConfig config) {
         config.setUpdateBy(getUsername());
@@ -160,7 +160,7 @@ public class SysConfigController extends BaseController {
      * 删除参数配置
      */
     @PrePermission("system:config:remove")
-    @Log(title = "ParameterManagement", businessType = BusinessTypeConstants.DELETE)
+    @Log(title = "system:config", businessType = BusinessTypeConstants.DELETE)
     @GetMapping("/delete/{configIds}")
     public AjaxResult remove(@PathVariable("configIds") Long[] configIds) {
         sysConfigService.deleteConfigByIds(configIds);
@@ -171,7 +171,7 @@ public class SysConfigController extends BaseController {
      * 刷新参数缓存
      */
     @PrePermission("system:config:remove")
-    @Log(title = "ParameterManagement", businessType = BusinessTypeConstants.CLEAN)
+    @Log(title = "system:config", businessType = BusinessTypeConstants.CLEAN)
     @GetMapping("/refreshCache")
     public AjaxResult refreshCache() {
         sysConfigService.loadingConfigCache();

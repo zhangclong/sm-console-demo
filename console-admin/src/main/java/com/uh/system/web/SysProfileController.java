@@ -63,7 +63,7 @@ public class SysProfileController extends BaseController
     /**
      * 修改用户
      */
-    @Log(title = "PersonalInformation", businessType = BusinessTypeConstants.UPDATE)
+    @Log(title = "system:user", businessType = BusinessTypeConstants.UPDATE)
     @PostMapping("/edit")
     public AjaxResult updateProfile(@RequestBody SysUser user)
     {
@@ -98,7 +98,7 @@ public class SysProfileController extends BaseController
     /**
      * 重置密码
      */
-    @Log(title = "PersonalInformation", businessType = BusinessTypeConstants.UPDATE)
+    @Log(title = "system:user", businessType = BusinessTypeConstants.UPDATE)
     @PostMapping("/updatePwd")
     public AjaxResult updatePwd(@RequestParam(value = "oldPassword",required = false) String oldPassword, @RequestParam(value = "newPassword",required = false)String newPassword)
     {
@@ -129,7 +129,7 @@ public class SysProfileController extends BaseController
     /**
      * 头像上传
      */
-    @Log(title = "UserAvatar", businessType = BusinessTypeConstants.UPDATE)
+    @Log(title = "system:user", businessType = BusinessTypeConstants.UPDATE)
     @PostMapping("/avatar")
     public AjaxResult avatar(@RequestParam("avatarfile") MultipartFile file) throws Exception
     {

@@ -72,7 +72,7 @@ public class RdsVersionController extends BaseController {
      * 新增版本信息
      */
     @PrePermission("console:rdsversion:add")
-    @Log(title = "VersionInformation", businessType = BusinessTypeConstants.INSERT)
+    @Log(title = "console:rdsversion", businessType = BusinessTypeConstants.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody RdsVersion rdsVersion) {
         rdsVersion.setCreateBy(getUsername());
@@ -83,7 +83,7 @@ public class RdsVersionController extends BaseController {
      * 修改版本信息
      */
     @PrePermission("console:rdsversion:edit")
-    @Log(title = "VersionInformation", businessType = BusinessTypeConstants.UPDATE)
+    @Log(title = "console:rdsversion", businessType = BusinessTypeConstants.UPDATE)
     @PostMapping("/edit")
     public AjaxResult edit(@RequestBody RdsVersion rdsVersion) {
         rdsVersion.setUpdateBy(getUsername());
@@ -94,7 +94,7 @@ public class RdsVersionController extends BaseController {
      * 删除版本信息
      */
     @PrePermission("console:rdsversion:remove")
-    @Log(title = "VersionInformation", businessType = BusinessTypeConstants.DELETE)
+    @Log(title = "console:rdsversion", businessType = BusinessTypeConstants.DELETE)
     @GetMapping("/delete/{versionIds}")
     public AjaxResult remove(@PathVariable("versionIds") Long[] versionIds) {
         return toAjax(rdsVersionService.deleteVersionBy(versionIds));
@@ -105,7 +105,7 @@ public class RdsVersionController extends BaseController {
      * 状态修改
      */
     @PrePermission("console:rdsversion:edit")
-    @Log(title = "VersionInformation", businessType = BusinessTypeConstants.UPDATE)
+    @Log(title = "console:rdsversion", businessType = BusinessTypeConstants.UPDATE)
     @PostMapping("/changeStatus")
     public AjaxResult changeStatus(@RequestBody RdsVersion paramVer) {
         paramVer.setUpdateBy(getUsername());
@@ -117,7 +117,7 @@ public class RdsVersionController extends BaseController {
      * 改为默认版本
      */
     @PrePermission("console:rdsversion:edit")
-    @Log(title = "VersionInformation", businessType = BusinessTypeConstants.UPDATE)
+    @Log(title = "console:rdsversion", businessType = BusinessTypeConstants.UPDATE)
     @PostMapping("/changeDefault/{versionId}")
     public AjaxResult changeDefault(@PathVariable("versionId") Long versionId) {
         return toAjax(rdsVersionService.updateDefaultVersion(versionId, getUsername()));

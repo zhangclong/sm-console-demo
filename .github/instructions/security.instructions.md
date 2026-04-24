@@ -51,8 +51,8 @@ public class ExampleController extends BaseController {
         return getDataTable(list);
     }
 
-    // ✅ 正确：写操作必须同时加 @Log 用于审计
-    @Log(title = "ExampleManagement", businessType = BusinessType.INSERT)
+    // ✅ 正确：写操作必须同时加 @Log 用于审计，title 使用对应功能在 menu.yml 中的 menuCode
+    @Log(title = "console:example", businessType = BusinessType.INSERT)
     @PrePermission("console:example:create")
     @PostMapping
     public AjaxResult add(@RequestBody Example example) {
@@ -97,6 +97,7 @@ public class ExampleController extends BaseController {
 2. 前端按钮加 `v-hasPermi="['console:example:create']"`
 3. 权限字符串必须完全一致（包括大小写、冒号分隔）
 4. 在 `console-admin/src/main/resources/menu.yml` 中补充对应 `menuCode`
+5. 写操作上的 `@Log(title=...)` 也要使用对应功能在 `menu.yml` 中的 `menuCode`，确保审计日志标识与菜单权限保持一致
 
 ### 2. 权限粒度划分
 
@@ -192,11 +193,11 @@ public class SysLoginController {
 - [ ] 后端 Controller 方法加 `@PrePermission("xxx:yyy:zzz")`
 - [ ] 前端按钮/操作加 `v-hasPermi="['xxx:yyy:zzz']"`
 - [ ] 确保前后端权限标识完全一致
-- [ ] 写操作添加 `@Log` 注解用于审计
+- [ ] 写操作添加 `@Log` 注解用于审计，且 `@Log(title=...)` 的 `title` 使用对应功能在 `menu.yml` 中的 `menuCode`
 - [ ] 如涉及敏感操作，加强业务层二次校验
 - [ ] 在 `console-admin/src/main/resources/menu.yml` 中添加/调整对应 `menuCode`
 - [ ] 菜单裁剪/删除时已同步清理前端按钮、角色授权回显和兼容初始化数据
-- [ ] `menu.yml.menuCode`、`@PrePermission`、`v-hasPermi` 三处权限标识完全一致
+- [ ] `menu.yml.menuCode`、`@PrePermission`、`v-hasPermi`、`@Log(title=...)` 四处标识语义一致
 - [ ] 如涉及跨租户数据，确认租户隔离逻辑正确
 - [ ] 测试：普通用户无权限时返回 403 错误，有权限时正常访问
 - [ ] 测试：前端按钮在无权限时正确隐藏

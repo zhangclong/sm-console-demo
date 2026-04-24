@@ -29,6 +29,11 @@ public class SysOperLog extends BaseEntity {
     private String title;
 
     /**
+     * 操作模块显示名称
+     */
+    private String titleName;
+
+    /**
      * 业务类型
      */
     @Excel(name = "业务类型")
@@ -131,6 +136,14 @@ public class SysOperLog extends BaseEntity {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getTitleName() {
+        return titleName;
+    }
+
+    public void setTitleName(String titleName) {
+        this.titleName = titleName;
     }
 
     public String getBusinessType() {
@@ -258,6 +271,7 @@ public class SysOperLog extends BaseEntity {
         return "SysOperLog{" +
                 "operId=" + operId +
                 ", title='" + title + '\'' +
+                ", titleName='" + titleName + '\'' +
                 ", businessType=" + businessType +
                 ", businessTypes=" + Arrays.toString(businessTypes) +
                 ", method='" + method + '\'' +

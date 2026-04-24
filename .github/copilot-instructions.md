@@ -19,6 +19,7 @@
 - 优先复用现有 utility/mapper/service，避免重复逻辑。
 - 代码变更后执行最小相关验证命令。
 - 保持行为显式，不添加掩盖错误的静默 fallback。
+- 控制器写操作上的 `@Log(title=...)`，`title` 统一使用对应功能在 `console-admin/src/main/resources/menu.yml` 中的 `menuCode`。
 - 本工程使用 Spring Framework（非 Spring Boot），禁止引入 `spring-boot-*` 依赖。
 
 ## Build、Test 与 Run（快速参考）

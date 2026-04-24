@@ -1,9 +1,12 @@
 package com.uh.system.service.impl;
 
+import java.util.LinkedList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.uh.system.domain.SysOperLog;
+import com.uh.system.domain.MenuDefinition;
+import com.uh.system.manage.MenuRegistry;
 import com.uh.system.mapper.SysOperLogMapper;
 import com.uh.system.service.SysOperLogService;
 
@@ -19,6 +22,9 @@ public class SysOperLogServiceImpl implements SysOperLogService
 {
     @Autowired
     private SysOperLogMapper operLogMapper;
+
+    @Autowired
+    private MenuRegistry menuRegistry;
 
     /**
      * 新增操作日志
@@ -41,7 +47,9 @@ public class SysOperLogServiceImpl implements SysOperLogService
     public List<SysOperLog> selectOperLogList(SysOperLog operLog)
     {
         checkDateFormat(operLog.getParams(), "beginTime", "endTime");
-        return operLogMapper.selectOperLogList(operLog);
+        List<SysOperLog> operLogs = operLogMapper.selectOperLogList(operLog);
+        fillTitleNames(operLogs);
+        return operLogs;
     }
 
     /**
@@ -65,7 +73,9 @@ public class SysOperLogServiceImpl implements SysOperLogService
     @Override
     public SysOperLog selectOperLogById(Long operId)
     {
-        return operLogMapper.selectOperLogById(operId);
+        SysOperLog operLog = operLogMapper.selectOperLogById(operId);
+        fillTitleName(operLog);
+        return operLog;
     }
 
     /**
@@ -75,5 +85,48 @@ public class SysOperLogServiceImpl implements SysOperLogService
     public void cleanOperLog()
     {
         operLogMapper.cleanOperLog();
+    }
+
+    private void fillTitleNames(List<SysOperLog> operLogs)
+    {
+        if (operLogs == null || operLogs.isEmpty())
+        {
+            return;
+        }
+        for (SysOperLog operLog : operLogs)
+        {
+            fillTitleName(operLog);
+        }
+    }
+
+    private void fillTitleName(SysOperLog operLog)
+    {
+        if (operLog == null)
+        {
+            return;
+        }
+        operLog.setTitleName(resolveTitleName(operLog.getTitle()));
+    }
+
+    private String resolveTitleName(String title)
+    {
+        MenuDefinition menu = menuRegistry.getByCode(title);
+        if (menu == null)
+        {
+            return title;
+        }
+
+        LinkedList<String> menuNames = new LinkedList<>();
+        MenuDefinition current = menu;
+        while (current != null)
+        {
+            if (current.getMenuName() != null && !current.getMenuName().isEmpty())
+            {
+                menuNames.addFirst(current.getMenuName());
+            }
+            String parentCode = current.getParentCode();
+            current = parentCode == null || parentCode.isEmpty() ? null : menuRegistry.getByCode(parentCode);
+        }
+        return menuNames.isEmpty() ? title : String.join(".", menuNames);
     }
 }

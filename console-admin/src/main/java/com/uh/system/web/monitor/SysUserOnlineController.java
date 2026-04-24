@@ -81,7 +81,7 @@ public class SysUserOnlineController extends BaseController
      * 强退用户
      */
     @PrePermission("monitor:online:forceLogout")
-    @Log(title = "OnlineUsers", businessType = BusinessTypeConstants.FORCE)
+    @Log(title = "monitor:online", businessType = BusinessTypeConstants.FORCE)
     @GetMapping("/{tokenId}")
     public AjaxResult forceLogout(@PathVariable("tokenId") String tokenId)
     {

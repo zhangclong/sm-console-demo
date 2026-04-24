@@ -53,6 +53,7 @@ applyTo: "**/*"
 - [ ] 所有非公开 Controller 接口加 `@PrePermission` 注解
 - [ ] 前端按钮权限 `v-hasPermi` 与后端 `@PrePermission` 对齐
 - [ ] `menu.yml` 中 `menuCode` 与 `@PrePermission`、`v-hasPermi` 三处一致
+- [ ] 写操作上的 `@Log(title=...)` 与对应功能的 `menu.yml` `menuCode` 一致
 - [ ] 权限标识格式正确：`模块:功能:操作`（如 `console:rdsservice:list`）
 - [ ] 写操作（增删改）添加 `@Log` 注解用于审计
 - [ ] 超管判断使用 `SecurityUtils.isAdmin(userId)`，没有硬编码 `userId == 1L`

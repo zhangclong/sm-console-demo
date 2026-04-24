@@ -40,7 +40,7 @@ public class SysOperlogController extends BaseController
         return getDataTable(list);
     }
 
-    @Log(title = "OperationLog", businessType = BusinessTypeConstants.EXPORT)
+    @Log(title = "monitor:operlog", businessType = BusinessTypeConstants.EXPORT)
     @PrePermission("monitor:operlog:export")
     @PostMapping("/export")
     public void export(HttpServletResponse response, SysOperLog operLog)

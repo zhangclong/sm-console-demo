@@ -54,7 +54,7 @@ public class RdsVersionPkgController extends BaseController
 
 
     @PrePermission("console:rdsversion:add")
-    @Log(title = "InstallationPackageInformation", businessType = BusinessTypeConstants.INSERT)
+    @Log(title = "console:rdsversion", businessType = BusinessTypeConstants.INSERT)
     @PostMapping("/upload")
     public AjaxResult upload(@RequestParam("file") MultipartFile file, @RequestParam("versionId") Long versionId, @RequestParam("pkgType") String pkgType) throws Exception
     {
@@ -113,7 +113,7 @@ public class RdsVersionPkgController extends BaseController
      * 导出安装包信息列表
      */
     @PrePermission("console:rdsversion:export")
-    @Log(title = "InstallationPackageInformation", businessType = BusinessTypeConstants.EXPORT)
+    @Log(title = "console:rdsversion", businessType = BusinessTypeConstants.EXPORT)
     @PostMapping("/export")
     public void export(HttpServletResponse response, RdsVersionPkg rdsVersionPkg)
     {
@@ -136,7 +136,7 @@ public class RdsVersionPkgController extends BaseController
      * 新增安装包信息
      */
     @PrePermission("console:rdsversion:add")
-    @Log(title = "InstallationPackageInformation", businessType = BusinessTypeConstants.INSERT)
+    @Log(title = "console:rdsversion", businessType = BusinessTypeConstants.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody RdsVersionPkg rdsVersionPkg)
     {
@@ -147,7 +147,7 @@ public class RdsVersionPkgController extends BaseController
      * 修改安装包信息
      */
     @PrePermission("console:rdsversion:edit")
-    @Log(title = "InstallationPackageInformation", businessType = BusinessTypeConstants.UPDATE)
+    @Log(title = "console:rdsversion", businessType = BusinessTypeConstants.UPDATE)
     @PostMapping("/edit")
     public AjaxResult edit(@RequestBody RdsVersionPkg rdsVersionPkg)
     {
@@ -158,7 +158,7 @@ public class RdsVersionPkgController extends BaseController
      * 删除安装包信息
      */
     @PrePermission("console:rdsversion:remove")
-    @Log(title = "InstallationPackageInformation", businessType = BusinessTypeConstants.DELETE)
+    @Log(title = "console:rdsversion", businessType = BusinessTypeConstants.DELETE)
 	@GetMapping("/delete/{packageIds}")
     public AjaxResult remove(@PathVariable("packageIds") Long[] packageIds)
     {

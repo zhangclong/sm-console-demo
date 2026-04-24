@@ -60,11 +60,14 @@
 3. 数据库管理
    - 开发调试期间可使用任意 MySQL 客户端（如 `mysql`、DBeaver、Navicat、IDEA Database 工具）连接 `127.0.0.1:3306` 查看数据。
    - 应用不再启动内置数据库控制台（H2 Web Console 已移除）。
-4. 数据库备份
+4. 审计日志标题
+   - 控制器写操作上的 `@Log(title=...)`，`title` 统一使用对应功能在 `console-admin/src/main/resources/menu.yml` 中的 `menuCode`。
+   - 例如 `RdsVersionController` 中的 `@Log(title = "console:rdsversion", ...)`，其 `title` 就对应 `menuCode: console:rdsversion`。
+5. 数据库备份
    注意：备份通过外部 `mysqldump` 命令执行，需预先安装 MySQL 客户端工具。
    在apphome/目录下执行 java -jar lib/console-admin.jar --backup
    进行一次数据库数据导出，导出文件（`.sql.gz`）到 data/dbbak 目录下，备份完成后程序会退出。
-5. 恢复备份数据
+6. 恢复备份数据
    恢复通过外部 `mysql` 命令执行，需预先安装 MySQL 客户端工具。
    在apphome/目录下执行 java -jar lib/console-admin.jar --restore export-20250428165907.sql.gz
    进行数据库数据恢复, 把 data/dbbak/export-20250428165907.sql.gz 中的数据恢复到当前数据库中。

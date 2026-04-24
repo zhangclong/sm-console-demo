@@ -107,7 +107,7 @@
     <el-table ref="tables" v-loading="loading" :data="list" @selection-change="handleSelectionChange" :default-sort="defaultSort" @sort-change="handleSortChange" :header-cell-style="{background: '#f3f5f6',}">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="日志编号" align="center" prop="operId" />
-      <el-table-column label="系统模块" align="center" prop="title" />
+      <el-table-column label="系统模块" align="center" prop="titleName" />
       <el-table-column label="操作类型" align="center" prop="businessType">
         <template #default="scope">
           <dict-tag :options="dict.type.sys_oper_type" :value="scope.row.businessType"/>
@@ -153,7 +153,7 @@
       <el-form ref="form" :model="form" label-width="100px" size="small">
         <el-row>
           <el-col :span="12">
-            <el-form-item label="操作模块：">{{ form.title }} / {{ typeFormat(form) }}</el-form-item>
+            <el-form-item label="操作模块：">{{ form.titleName || form.title }} / {{ typeFormat(form) }}</el-form-item>
             <el-form-item
               label="登录信息："
             >{{ form.operName }} / {{ form.operIp }} / {{ form.operLocation }}</el-form-item>
@@ -308,4 +308,3 @@ export default {
   }
 };
 </script>
-

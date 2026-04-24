@@ -53,7 +53,7 @@ public class SysRoleController extends BaseController
         return getDataTable(list);
     }
 
-    @Log(title = "RoleManagement", businessType = BusinessTypeConstants.EXPORT)
+    @Log(title = "system:role", businessType = BusinessTypeConstants.EXPORT)
     @PrePermission("system:role:export")
     @PostMapping("/export")
     public void export(HttpServletResponse response, SysRole role)
@@ -77,7 +77,7 @@ public class SysRoleController extends BaseController
      * 新增角色
      */
     @PrePermission("system:role:add")
-    @Log(title = "RoleManagement", businessType = BusinessTypeConstants.INSERT)
+    @Log(title = "system:role", businessType = BusinessTypeConstants.INSERT)
     @PostMapping
     public AjaxResult add(@Validated @RequestBody SysRole role)
     {
@@ -97,7 +97,7 @@ public class SysRoleController extends BaseController
      * 修改保存角色
      */
     @PrePermission("system:role:edit")
-    @Log(title = "RoleManagement", businessType = BusinessTypeConstants.UPDATE)
+    @Log(title = "system:role", businessType = BusinessTypeConstants.UPDATE)
     @PostMapping("/edit")
     public AjaxResult edit(@Validated @RequestBody SysRole role)
     {
@@ -131,7 +131,7 @@ public class SysRoleController extends BaseController
      * 状态修改
      */
     @PrePermission("system:role:edit")
-    @Log(title = "RoleManagement", businessType = BusinessTypeConstants.UPDATE)
+    @Log(title = "system:role", businessType = BusinessTypeConstants.UPDATE)
     @PostMapping("/changeStatus")
     public AjaxResult changeStatus(@RequestBody SysRole role)
     {
@@ -144,7 +144,7 @@ public class SysRoleController extends BaseController
      * 删除角色
      */
     @PrePermission("system:role:remove")
-    @Log(title = "RoleManagement", businessType = BusinessTypeConstants.DELETE)
+    @Log(title = "system:role", businessType = BusinessTypeConstants.DELETE)
     @GetMapping("/delete/{roleIds}")
     public AjaxResult remove(@PathVariable("roleIds") Long[] roleIds)
     {
@@ -189,7 +189,7 @@ public class SysRoleController extends BaseController
      * 取消授权用户
      */
     @PrePermission("system:role:edit")
-    @Log(title = "RoleManagement", businessType = BusinessTypeConstants.GRANT)
+    @Log(title = "system:role", businessType = BusinessTypeConstants.GRANT)
     @PostMapping("/authUser/cancel")
     public AjaxResult cancelAuthUser(@RequestBody SysUserRole userRole)
     {
@@ -200,7 +200,7 @@ public class SysRoleController extends BaseController
      * 批量取消授权用户
      */
     @PrePermission("system:role:edit")
-    @Log(title = "RoleManagement", businessType = BusinessTypeConstants.GRANT)
+    @Log(title = "system:role", businessType = BusinessTypeConstants.GRANT)
     @PostMapping("/authUser/cancelAll")
     public AjaxResult cancelAuthUserAll(@RequestParam("roleId") Long roleId,@RequestParam("userIds") Long[] userIds)
     {
@@ -211,7 +211,7 @@ public class SysRoleController extends BaseController
      * 批量选择用户授权
      */
     @PrePermission("system:role:edit")
-    @Log(title = "RoleManagement", businessType = BusinessTypeConstants.GRANT)
+    @Log(title = "system:role", businessType = BusinessTypeConstants.GRANT)
     @PostMapping("/authUser/selectAll")
     public AjaxResult selectAuthUserAll(@RequestParam("roleId") Long roleId,@RequestParam("userIds") Long[] userIds)
     {

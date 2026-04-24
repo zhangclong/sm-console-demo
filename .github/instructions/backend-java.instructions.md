@@ -39,7 +39,7 @@
   - 查询分页走 `BaseController.startPage()` + `getDataTable(...)`。
   - 增删改优先走 `toAjax(...)` 统一返回。
   - 权限注解与前端按钮权限一致（如 `@PrePermission("system:menu:list")`）。
-  - 需要审计的写操作加 `@Log`。
+  - 需要审计的写操作加 `@Log`；`@Log(title=...)` 的 `title` 取值统一使用对应功能在 `menu.yml` 中的 `menuCode`（例如 `console:rdsversion`）。
 - Service：
   - 接口放 `service`，实现放 `service/impl`，实现类命名 `*ServiceImpl`。
   - 多表写入、级联删除、状态联动必须加 `@Transactional`。

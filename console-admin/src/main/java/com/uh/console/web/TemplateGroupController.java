@@ -70,7 +70,7 @@ public class TemplateGroupController extends BaseController
      * 导出配置模版列表
      */
     @PrePermission("console:tempgroup:export")
-    @Log(title = "ConfigureTheTemplate", businessType = BusinessTypeConstants.EXPORT)
+    @Log(title = "console:tempgroup", businessType = BusinessTypeConstants.EXPORT)
     @PostMapping("/export")
     public void export(HttpServletResponse response, TemplateGroup templateGroup)
     {
@@ -93,7 +93,7 @@ public class TemplateGroupController extends BaseController
      * 新增配置模版
      */
     @PrePermission("console:tempgroup:add")
-    @Log(title = "ConfigureTheTemplate", businessType = BusinessTypeConstants.INSERT)
+    @Log(title = "console:tempgroup", businessType = BusinessTypeConstants.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody TemplateGroup templateGroup)
     {
@@ -104,7 +104,7 @@ public class TemplateGroupController extends BaseController
      * 修改配置模版
      */
     @PrePermission("console:tempgroup:edit")
-    @Log(title = "ConfigureTheTemplate", businessType = BusinessTypeConstants.UPDATE)
+    @Log(title = "console:tempgroup", businessType = BusinessTypeConstants.UPDATE)
     @PostMapping("/edit")
     public AjaxResult edit(@RequestBody TemplateGroup templateGroup)
     {
@@ -115,7 +115,7 @@ public class TemplateGroupController extends BaseController
      * 删除配置模版
      */
     @PrePermission("console:tempgroup:remove")
-    @Log(title = "ConfigureTheTemplate", businessType = BusinessTypeConstants.DELETE)
+    @Log(title = "console:tempgroup", businessType = BusinessTypeConstants.DELETE)
 	@GetMapping("/delete/{groupIds}")
     public AjaxResult remove(@PathVariable("groupIds") Long[] groupIds)
     {

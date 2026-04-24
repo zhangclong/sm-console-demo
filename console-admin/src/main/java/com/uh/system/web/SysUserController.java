@@ -61,7 +61,7 @@ public class SysUserController extends BaseController {
         return getDataTable(list);
     }
 
-    @Log(title = "UserManagement", businessType = BusinessTypeConstants.EXPORT)
+    @Log(title = "system:user", businessType = BusinessTypeConstants.EXPORT)
     @PrePermission("system:user:export")
     @PostMapping("/export")
     public void export(HttpServletResponse response, SysUser user) {
@@ -70,7 +70,7 @@ public class SysUserController extends BaseController {
         util.exportExcel(response, list, "用户数据");
     }
 
-    @Log(title = "UserManagement", businessType = BusinessTypeConstants.IMPORT)
+    @Log(title = "system:user", businessType = BusinessTypeConstants.IMPORT)
     @PrePermission("system:user:import")
     @PostMapping("/importData")
     public AjaxResult importData(MultipartFile file, boolean updateSupport) throws Exception {
@@ -109,7 +109,7 @@ public class SysUserController extends BaseController {
      * 新增用户
      */
     @PrePermission("system:user:add")
-    @Log(title = "UserManagement", businessType = BusinessTypeConstants.INSERT)
+    @Log(title = "system:user", businessType = BusinessTypeConstants.INSERT)
     @PostMapping
     public AjaxResult add(@Validated @RequestBody SysUser user) {
         if (UserConstants.NOT_UNIQUE.equals(userService.checkUserNameUnique(user))) {
@@ -134,7 +134,7 @@ public class SysUserController extends BaseController {
      * 修改用户
      */
     @PrePermission("system:user:edit")
-    @Log(title = "UserManagement", businessType = BusinessTypeConstants.UPDATE)
+    @Log(title = "system:user", businessType = BusinessTypeConstants.UPDATE)
     @PostMapping("/edit")
     public AjaxResult edit(@Validated @RequestBody SysUser user) {
         userService.checkUserAllowed(user);
@@ -161,7 +161,7 @@ public class SysUserController extends BaseController {
      * 重置密码
      */
     @PrePermission("system:user:resetPwd")
-    @Log(title = "UserManagement", businessType = BusinessTypeConstants.UPDATE)
+    @Log(title = "system:user", businessType = BusinessTypeConstants.UPDATE)
     @PostMapping("/resetPwd")
     public AjaxResult resetPwd(@RequestBody SysUser user) {
         // userService.checkUserAllowed(user);
@@ -184,7 +184,7 @@ public class SysUserController extends BaseController {
      * 删除用户
      */
     @PrePermission("system:user:remove")
-    @Log(title = "UserManagement", businessType = BusinessTypeConstants.DELETE)
+    @Log(title = "system:user", businessType = BusinessTypeConstants.DELETE)
     @GetMapping("/delete/{userIds}")
     public AjaxResult remove(@PathVariable("userIds") Long[] userIds) {
         if (ArrayUtils.contains(userIds, getUserId())) {
@@ -199,7 +199,7 @@ public class SysUserController extends BaseController {
      * 状态修改
      */
     @PrePermission("system:user:edit")
-    @Log(title = "UserManagement", businessType = BusinessTypeConstants.UPDATE)
+    @Log(title = "system:user", businessType = BusinessTypeConstants.UPDATE)
     @PostMapping("/changeStatus")
     public AjaxResult changeStatus(@RequestBody SysUser user) {
         userService.checkUserAllowed(user);
@@ -225,7 +225,7 @@ public class SysUserController extends BaseController {
      * 用户授权角色
      */
     @PrePermission("system:user:edit")
-    @Log(title = "UserManagement", businessType = BusinessTypeConstants.GRANT)
+    @Log(title = "system:user", businessType = BusinessTypeConstants.GRANT)
     @PostMapping("/authRole")
     public AjaxResult insertAuthRole(Long userId, Long[] roleIds) {
         userService.insertUserAuth(userId, roleIds);
@@ -233,7 +233,7 @@ public class SysUserController extends BaseController {
     }
 
     @PrePermission("system:user:edit")
-    @Log(title = "UserManagement-LoginUnlock", businessType = BusinessTypeConstants.CLEAN)
+    @Log(title = "system:user", businessType = BusinessTypeConstants.CLEAN)
     @GetMapping("/unlock/{userId}")
     public AjaxResult unlock(@PathVariable("userId") Long userId)
     {

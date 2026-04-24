@@ -20,7 +20,7 @@ import com.uh.common.enums.OperatorType;
 public @interface Log
 {
     /**
-     * 模块 
+     * 菜单编码（menuCode）
      */
     public String title() default "";
 

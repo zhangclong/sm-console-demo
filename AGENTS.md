@@ -12,7 +12,7 @@
 - Dict runtime chain: `console-ui/src/api/system/dict/data.js` -> `/system/dict/data/type/{dictType}` -> `console-admin/src/main/java/com/uh/system/web/SysDictDataController.java` -> `DictRegistry` -> enum classes under `com.uh.system.dict` / `com.uh.console.dict`.
 ## Backend conventions you must match
 - Layering is strict: Controller (HTTP + permission) / Service (business + transactions) / Mapper interface + XML (SQL).
-- Controllers use GET/POST only, `@PrePermission` for non-public APIs, and `@Log` on write operations.
+- Controllers use GET/POST only, `@PrePermission` for non-public APIs, and `@Log` on write operations; `@Log(title=...)` must use the corresponding `menu.yml` `menuCode`.
 - Use `BaseController.startPage()` + `getDataTable(...)` for paged lists and `toAjax(...)` for write responses (`console-admin/src/main/java/com/uh/common/core/controller/BaseController.java`).
 - Keep SQL in `console-admin/src/main/resources/mapper/{system,console}/*Mapper.xml`; avoid SQL string building in Java.
 - For date-range filters, pass `params.begin*/end*` end-to-end and validate in Service with `DateUtils.checkDateFormat(...)` before mapper `${}` usage.
